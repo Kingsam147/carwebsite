@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model TimeSlot {
+  id       Int      @id @default(autoincrement())
+  date     String
+  time     String
+  isBooked Boolean  @default(false)
+  booking  Booking?
+}
+
+model Booking {
+  id          Int      @id @default(autoincrement())
+  name        String
+  phone       String
+  vehicleType String
+  service     String
+  addOns      String   @default("")
+  message     String   @default("")
+  slotId      Int      @unique
+  slot        TimeSlot @relation(fields: [slotId], references: [id])
+  createdAt   DateTime @default(now())
+}

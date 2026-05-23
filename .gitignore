@@ -1,0 +1,9 @@
+.claude
+.superpowers
+CLAUDE.md
+node_modules
+.next
+.env
+dev.db
+/lib/generated/prisma
+prisma/migrations
