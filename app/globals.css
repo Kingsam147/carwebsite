@@ -21,6 +21,11 @@
   --border-card: rgba(26, 111, 255, 0.1);
   --glow-sm: 0 0 16px rgba(26, 111, 255, 0.25);
   --glow-md: 0 0 32px rgba(26, 111, 255, 0.35);
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 32px;
+  --space-xl: 64px;
 }
 
 html {

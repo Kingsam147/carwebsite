@@ -14,15 +14,7 @@ export default function Hero() {
         overflow: 'hidden',
       }}
     >
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: '45%',
-        background: 'linear-gradient(135deg, transparent 0%, rgba(8,20,50,0.6) 40%, rgba(26,111,255,0.08) 100%)',
-        borderLeft: '1px solid rgba(26,111,255,0.1)',
-        pointerEvents: 'none',
-      }} />
-
-      <div style={{ maxWidth: '1152px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
-        <div style={{ maxWidth: '540px' }}>
+      <div style={{ maxWidth: '1152px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             background: 'rgba(26,111,255,0.15)', border: '1px solid rgba(26,111,255,0.18)',
@@ -47,7 +39,7 @@ export default function Hero() {
             Professional Interior &amp; Exterior Cleaning<br />Across Massachusetts
           </p>
 
-          <div style={{ display: 'flex', gap: '20px', marginBottom: '28px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '20px', marginBottom: '28px', flexWrap: 'wrap', justifyContent: 'center' }}>
             {['Clean', 'Restored', 'Protected'].map(item => (
               <span key={item} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: '#3b9eff', fontWeight: 600, letterSpacing: '0.1em', fontFamily: 'var(--font-body)' }}>
                 <span style={{ width: 16, height: 16, borderRadius: '50%', background: 'rgba(26,111,255,0.15)', border: '1.5px solid #1a6fff', display: 'inline-block' }} />
@@ -56,7 +48,7 @@ export default function Hero() {
             ))}
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '28px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '28px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <a
               href="#booking"
               style={{
@@ -100,7 +92,6 @@ export default function Hero() {
               LIMITED TIME OFFER<br /><strong>UNTIL JUNE 7TH</strong>
             </div>
           </div>
-        </div>
       </div>
     </section>
   )

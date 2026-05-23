@@ -1,6 +1,11 @@
 'use client'
 
-import { ReactCompareSlider } from 'react-compare-slider'
+import dynamic from 'next/dynamic'
+
+const ReactCompareSlider = dynamic(
+  () => import('react-compare-slider').then((mod) => mod.ReactCompareSlider),
+  { ssr: false }
+)
 
 const pairs = [
   { caption: 'Heavy interior reset' },

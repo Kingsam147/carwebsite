@@ -53,7 +53,7 @@ export default function Nav() {
         VELOCITY<span style={{ color: 'var(--accent-blue)' }}>X</span>
       </a>
 
-      <nav className="hidden-mobile" style={{ display: 'flex', gap: 'var(--space-lg)', alignItems: 'center' }}>
+      <nav className="hidden-mobile" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
         {links.map((link) => (
           <a
             key={link.href}
