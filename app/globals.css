@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Jost', sans-serif;
+  --color-accent: #1a6fff;
+  --color-glow: #3b9eff;
+  --color-base: #04060f;
+  --color-surface: #080d1a;
+}
+
+:root {
+  --bg-base: #04060f;
+  --bg-surface: #080d1a;
+  --bg-card: rgba(8, 16, 35, 0.75);
+  --accent-blue: #1a6fff;
+  --accent-glow: #3b9eff;
+  --accent-dim: rgba(26, 111, 255, 0.15);
+  --text-primary: #ffffff;
+  --border-subtle: rgba(26, 111, 255, 0.18);
+  --border-card: rgba(26, 111, 255, 0.1);
+  --glow-sm: 0 0 16px rgba(26, 111, 255, 0.25);
+  --glow-md: 0 0 32px rgba(26, 111, 255, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body), sans-serif;
+}
+
+.hidden-mobile {
+  display: flex;
+}
+.show-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  .show-mobile {
+    display: flex !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
