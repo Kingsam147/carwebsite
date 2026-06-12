@@ -31,13 +31,15 @@ export default async function AdminPage({
           <form action={login} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <input
               type="email" name="email" placeholder="Email" required autoComplete="email"
-              style={{ padding: '10px 12px', background: '#04060f', border: '1px solid rgba(26,111,255,0.2)', color: '#fff', borderRadius: '6px', fontSize: '0.8rem', fontFamily: 'var(--font-body)' }}
+              className="vx-input"
+              style={{ padding: '10px 12px', background: '#04060f', border: '1px solid rgba(26,111,255,0.2)', color: '#fff', borderRadius: '6px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', width: '100%', boxSizing: 'border-box' }}
             />
             <input
               type="password" name="password" placeholder="Password" required autoComplete="current-password"
-              style={{ padding: '10px 12px', background: '#04060f', border: '1px solid rgba(26,111,255,0.2)', color: '#fff', borderRadius: '6px', fontSize: '0.8rem', fontFamily: 'var(--font-body)' }}
+              className="vx-input"
+              style={{ padding: '10px 12px', background: '#04060f', border: '1px solid rgba(26,111,255,0.2)', color: '#fff', borderRadius: '6px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', width: '100%', boxSizing: 'border-box' }}
             />
-            <button type="submit" style={{ padding: '10px', background: '#1a6fff', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', fontFamily: 'var(--font-body)' }}>
+            <button type="submit" className="vx-btn-primary" style={{ padding: '10px', background: '#1a6fff', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', fontFamily: 'var(--font-body)' }}>
               LOGIN
             </button>
           </form>
@@ -59,7 +61,7 @@ export default async function AdminPage({
             <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>SLOT MANAGEMENT</p>
           </div>
           <form action={logout}>
-            <button type="submit" style={{ padding: '8px 16px', background: 'none', border: '1px solid rgba(26,111,255,0.25)', color: 'rgba(255,255,255,0.6)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7rem', letterSpacing: '0.1em', fontFamily: 'var(--font-body)' }}>
+            <button type="submit" className="vx-btn-outline" style={{ padding: '8px 16px', background: 'none', border: '1px solid rgba(26,111,255,0.25)', color: 'rgba(255,255,255,0.6)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7rem', letterSpacing: '0.1em', fontFamily: 'var(--font-body)' }}>
               LOGOUT
             </button>
           </form>
@@ -73,6 +75,7 @@ export default async function AdminPage({
               <input
                 type="date" name="date" required
                 min={new Date().toISOString().split('T')[0]}
+                className="vx-input"
                 style={{ padding: '8px 10px', background: '#04060f', border: '1px solid rgba(26,111,255,0.2)', color: '#fff', borderRadius: '6px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', colorScheme: 'dark' }}
               />
             </div>
@@ -80,10 +83,11 @@ export default async function AdminPage({
               <label style={{ display: 'block', fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)', marginBottom: '5px' }}>TIME</label>
               <input
                 type="time" name="time" required
+                className="vx-input"
                 style={{ padding: '8px 10px', background: '#04060f', border: '1px solid rgba(26,111,255,0.2)', color: '#fff', borderRadius: '6px', fontSize: '0.8rem', fontFamily: 'var(--font-body)', colorScheme: 'dark' }}
               />
             </div>
-            <button type="submit" style={{ padding: '8px 18px', background: '#1a6fff', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', fontFamily: 'var(--font-body)', boxShadow: '0 0 16px rgba(26,111,255,0.25)' }}>
+            <button type="submit" className="vx-btn-primary" style={{ padding: '8px 18px', background: '#1a6fff', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', fontFamily: 'var(--font-body)', boxShadow: '0 0 16px rgba(26,111,255,0.25)' }}>
               + ADD SLOT
             </button>
           </form>
@@ -128,7 +132,7 @@ export default async function AdminPage({
                       {slot.isBooked ? 'BOOKED' : 'AVAILABLE'}
                     </span>
                     <form action={removeSlot.bind(null, slot.id)}>
-                      <button type="submit" style={{ padding: '4px 10px', background: 'none', border: '1px solid rgba(248,113,113,0.3)', color: '#f87171', borderRadius: '4px', cursor: 'pointer', fontSize: '0.62rem', fontFamily: 'var(--font-body)' }}>
+                      <button type="submit" className="vx-btn-danger" style={{ padding: '4px 10px', background: 'none', border: '1px solid rgba(248,113,113,0.3)', color: '#f87171', borderRadius: '4px', cursor: 'pointer', fontSize: '0.62rem', fontFamily: 'var(--font-body)' }}>
                         DELETE
                       </button>
                     </form>

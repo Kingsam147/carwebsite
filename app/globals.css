@@ -55,6 +55,65 @@ body {
   }
 }
 
+/* ── Inputs / Select / Textarea ───────────────────── */
+.vx-input {
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.vx-input:not(:disabled):hover {
+  border-color: rgba(26, 111, 255, 0.38) !important;
+}
+.vx-input:focus {
+  border-color: rgba(26, 111, 255, 0.65) !important;
+  box-shadow: 0 0 0 3px rgba(26, 111, 255, 0.12), 0 0 14px rgba(26, 111, 255, 0.18) !important;
+  outline: none;
+}
+
+/* ── Primary button ────────────────────────────────── */
+.vx-btn-primary {
+  transition: background 200ms ease, box-shadow 200ms ease, transform 150ms ease;
+}
+.vx-btn-primary:not(:disabled):hover {
+  background: #3a7fff !important;
+  box-shadow: 0 0 28px rgba(26, 111, 255, 0.55), 0 4px 16px rgba(26, 111, 255, 0.3) !important;
+  transform: translateY(-1px);
+}
+.vx-btn-primary:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 0 16px rgba(26, 111, 255, 0.35) !important;
+}
+
+/* ── Outline / ghost button ────────────────────────── */
+.vx-btn-outline {
+  transition: background 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+.vx-btn-outline:hover {
+  background: rgba(26, 111, 255, 0.12) !important;
+  border-color: rgba(59, 158, 255, 0.5) !important;
+  color: #fff !important;
+  box-shadow: 0 0 12px rgba(26, 111, 255, 0.15);
+}
+
+/* ── Danger (delete) button ────────────────────────── */
+.vx-btn-danger {
+  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+.vx-btn-danger:hover {
+  background: rgba(248, 113, 113, 0.1) !important;
+  border-color: rgba(248, 113, 113, 0.55) !important;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.15);
+}
+
+/* ── Contact info cards ─────────────────────────────── */
+.vx-contact-card {
+  transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+.vx-contact-card:hover {
+  border-color: rgba(26, 111, 255, 0.32) !important;
+  background: rgba(26, 111, 255, 0.07) !important;
+  box-shadow: 0 0 20px rgba(26, 111, 255, 0.15);
+  transform: translateY(-2px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

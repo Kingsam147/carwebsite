@@ -121,19 +121,19 @@ export default function Booking() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
               <label htmlFor="name" style={labelStyle}>FULL NAME *</label>
-              <input id="name" name="name" type="text" required placeholder="Your name" style={inputStyle} />
+              <input id="name" name="name" type="text" required placeholder="Your name" style={inputStyle} className="vx-input" />
             </div>
             <div>
               <label htmlFor="phone" style={labelStyle}>PHONE *</label>
-              <input id="phone" name="phone" type="tel" required placeholder="774-000-0000" style={inputStyle} />
+              <input id="phone" name="phone" type="tel" required placeholder="774-000-0000" style={inputStyle} className="vx-input" />
             </div>
             <div>
               <label htmlFor="vehicleType" style={labelStyle}>VEHICLE TYPE *</label>
-              <input id="vehicleType" name="vehicleType" type="text" required placeholder="e.g. 2021 Honda Accord" style={inputStyle} />
+              <input id="vehicleType" name="vehicleType" type="text" required placeholder="e.g. 2021 Honda Accord" style={inputStyle} className="vx-input" />
             </div>
             <div>
               <label htmlFor="service" style={labelStyle}>SERVICE NEEDED *</label>
-              <select id="service" name="service" required style={{ ...inputStyle, cursor: 'pointer' }}>
+              <select id="service" name="service" required style={{ ...inputStyle, cursor: 'pointer' }} className="vx-input">
                 <option value="">Select a service</option>
                 {serviceOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
               </select>
@@ -157,6 +157,7 @@ export default function Booking() {
                 value={date}
                 onChange={e => setDate(e.target.value)}
                 style={{ ...inputStyle, colorScheme: 'dark' }}
+                className="vx-input"
               />
             </div>
             <div>
@@ -164,14 +165,14 @@ export default function Booking() {
                 AVAILABLE TIME SLOT *
                 {loadingSlots && <Loader2 size={12} style={{ marginLeft: 6, display: 'inline-block', verticalAlign: 'middle' }} />}
               </label>
-              <select id="slotId" name="slotId" required disabled={!date || loadingSlots} style={{ ...inputStyle, cursor: date ? 'pointer' : 'not-allowed', opacity: date ? 1 : 0.5 }}>
+              <select id="slotId" name="slotId" required disabled={!date || loadingSlots} style={{ ...inputStyle, cursor: date ? 'pointer' : 'not-allowed', opacity: date ? 1 : 0.5 }} className="vx-input">
                 <option value="">{date ? (slots.length ? 'Select a time' : 'No slots available') : 'Pick a date first'}</option>
                 {slots.map(slot => <option key={slot.id} value={slot.id}>{slot.time}</option>)}
               </select>
             </div>
             <div>
               <label htmlFor="message" style={labelStyle}>MESSAGE (OPTIONAL)</label>
-              <textarea id="message" name="message" rows={3} placeholder="Any notes about your vehicle..." style={{ ...inputStyle, resize: 'vertical' }} />
+              <textarea id="message" name="message" rows={3} placeholder="Any notes about your vehicle..." style={{ ...inputStyle, resize: 'vertical' }} className="vx-input" />
             </div>
 
             {error && <p style={{ fontSize: '0.75rem', color: '#f87171', fontFamily: 'var(--font-body)' }}>{error}</p>}
@@ -179,13 +180,14 @@ export default function Booking() {
             <button
               type="submit"
               disabled={submitting}
+              className="vx-btn-primary"
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 background: submitting ? 'rgba(26,111,255,0.6)' : '#1a6fff', color: '#fff',
                 padding: '12px 24px', borderRadius: '6px', fontSize: '0.75rem',
                 fontWeight: 600, letterSpacing: '0.12em', border: 'none',
                 cursor: submitting ? 'not-allowed' : 'pointer',
-                boxShadow: '0 0 16px rgba(26,111,255,0.25)', transition: 'all 200ms ease',
+                boxShadow: '0 0 16px rgba(26,111,255,0.25)',
                 fontFamily: 'var(--font-body)',
               }}
             >
@@ -203,12 +205,13 @@ export default function Booking() {
               <a
                 key={label}
                 href={href}
+                className="vx-contact-card"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
                   padding: '14px 16px', borderRadius: '8px',
                   border: '1px solid rgba(26,111,255,0.1)',
                   background: 'rgba(8,16,35,0.75)', backdropFilter: 'blur(12px)',
-                  textDecoration: 'none', transition: 'all 200ms ease', cursor: 'pointer',
+                  textDecoration: 'none', cursor: 'pointer',
                 }}
               >
                 <div style={{ width: 36, height: 36, borderRadius: '8px', background: 'rgba(26,111,255,0.15)', border: '1px solid rgba(26,111,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -230,11 +233,12 @@ export default function Booking() {
                 <a
                   key={label}
                   href={href}
+                  className={primary ? 'vx-btn-primary' : 'vx-btn-outline'}
                   style={{
                     display: 'block', textAlign: 'center', padding: '11px',
                     borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600,
                     letterSpacing: '0.1em', textDecoration: 'none', cursor: 'pointer',
-                    transition: 'all 200ms ease', fontFamily: 'var(--font-body)',
+                    fontFamily: 'var(--font-body)',
                     background: primary ? '#1a6fff' : 'rgba(26,111,255,0.05)',
                     color: primary ? '#fff' : '#3b9eff',
                     border: primary ? 'none' : '1.5px solid rgba(59,158,255,0.35)',
