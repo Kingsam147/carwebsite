@@ -1,6 +1,8 @@
 import { ArrowRight, Phone } from 'lucide-react'
 
-export default function Hero() {
+type Props = { onBookNow?: () => void }
+
+export default function Hero({ onBookNow }: Props) {
   return (
     <section
       id="hero"
@@ -49,19 +51,21 @@ export default function Hero() {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', marginBottom: '28px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <a
-              href="#booking"
+            <button
+              type="button"
+              onClick={onBookNow}
+              className="vx-btn-primary"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
                 background: '#1a6fff', color: '#fff', padding: '12px 24px',
                 borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600,
-                letterSpacing: '0.12em', textDecoration: 'none', cursor: 'pointer',
-                boxShadow: '0 0 16px rgba(26,111,255,0.25)', transition: 'all 200ms ease',
+                letterSpacing: '0.12em', border: 'none', cursor: 'pointer',
+                boxShadow: '0 0 16px rgba(26,111,255,0.25)',
                 fontFamily: 'var(--font-body)',
               }}
             >
               <ArrowRight size={14} /> BOOK NOW
-            </a>
+            </button>
             <a
               href="tel:7746990103"
               style={{

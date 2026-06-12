@@ -17,6 +17,7 @@ model TimeSlot {
 
 model Booking {
   id          Int      @id @default(autoincrement())
+  userId      String?
   name        String
   phone       String
   vehicleType String

@@ -114,6 +114,11 @@ body {
   transform: translateY(-2px);
 }
 
+/* ── Nav offset spacer (used when Hero is hidden) ──── */
+.nav-spacer {
+  height: 64px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

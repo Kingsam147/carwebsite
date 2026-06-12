@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
+import { User } from '@supabase/supabase-js'
 
 const links = [
   { label: 'About', href: '#about' },
@@ -11,7 +12,9 @@ const links = [
   { label: 'Book Now', href: '#booking' },
 ]
 
-export default function Nav() {
+type Props = { user: User | null; onAuthClick?: () => void }
+
+export default function Nav({ user, onAuthClick }: Props) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -20,6 +23,10 @@ export default function Nav() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  const firstName = user
+    ? ((user.user_metadata?.first_name as string | undefined) ?? user.email?.split('@')[0] ?? 'Account')
+    : null
 
   return (
     <header
@@ -54,7 +61,7 @@ export default function Nav() {
       </a>
 
       <nav className="hidden-mobile" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-        {links.map((link) => (
+        {user && links.map((link) => (
           <a
             key={link.href}
             href={link.href}
@@ -81,9 +88,105 @@ export default function Nav() {
             {link.label}
           </a>
         ))}
+
+        {/* Auth area */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
+          {firstName ? (
+            <a
+              href="/account"
+              style={{
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                color: '#fff',
+                textDecoration: 'none',
+                padding: '6px 14px',
+                borderRadius: '6px',
+                border: '1px solid rgba(26,111,255,0.3)',
+                background: 'rgba(26,111,255,0.08)',
+                letterSpacing: '0.04em',
+                transition: 'all 200ms ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget
+                el.style.background = 'rgba(26,111,255,0.18)'
+                el.style.borderColor = 'rgba(26,111,255,0.5)'
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget
+                el.style.background = 'rgba(26,111,255,0.08)'
+                el.style.borderColor = 'rgba(26,111,255,0.3)'
+              }}
+            >
+              {firstName}
+            </a>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onAuthClick ?? (() => { window.location.href = '/login' })}
+                style={{
+                  fontSize: '0.78rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  background: 'none',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  letterSpacing: '0.04em',
+                  transition: 'all 200ms ease',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-body)',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget
+                  el.style.color = '#fff'
+                  el.style.borderColor = 'rgba(255,255,255,0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget
+                  el.style.color = 'rgba(255,255,255,0.7)'
+                  el.style.borderColor = 'rgba(255,255,255,0.12)'
+                }}
+              >
+                Log In
+              </button>
+              <button
+                type="button"
+                onClick={onAuthClick ?? (() => { window.location.href = '/login' })}
+                style={{
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  color: '#fff',
+                  background: '#1a6fff',
+                  border: 'none',
+                  padding: '6px 14px',
+                  borderRadius: '6px',
+                  letterSpacing: '0.04em',
+                  boxShadow: '0 0 12px rgba(26,111,255,0.3)',
+                  transition: 'all 200ms ease',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-body)',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget
+                  el.style.background = '#3a7fff'
+                  el.style.boxShadow = '0 0 20px rgba(26,111,255,0.5)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget
+                  el.style.background = '#1a6fff'
+                  el.style.boxShadow = '0 0 12px rgba(26,111,255,0.3)'
+                }}
+              >
+                Sign Up
+              </button>
+            </>
+          )}
+        </div>
       </nav>
 
       <button
+        type="button"
         className="show-mobile"
         onClick={() => setMenuOpen(!menuOpen)}
         style={{
@@ -115,7 +218,7 @@ export default function Nav() {
             borderBottom: '1px solid var(--border-subtle)',
           }}
         >
-          {links.map((link) => (
+          {user && links.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -132,6 +235,23 @@ export default function Nav() {
               {link.label}
             </a>
           ))}
+          {firstName ? (
+            <a
+              href="/account"
+              onClick={() => setMenuOpen(false)}
+              style={{ color: '#3b9eff', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}
+            >
+              {firstName} — Account
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={() => { setMenuOpen(false); (onAuthClick ?? (() => { window.location.href = '/login' }))() }}
+              style={{ background: 'none', border: 'none', color: '#1a6fff', fontSize: '1rem', fontWeight: 600, cursor: 'pointer', padding: 0, fontFamily: 'var(--font-body)', textAlign: 'left' }}
+            >
+              Sign In / Sign Up
+            </button>
+          )}
         </div>
       )}
     </header>

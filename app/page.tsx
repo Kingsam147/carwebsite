@@ -1,5 +1,5 @@
+import GuestView from '@/components/GuestView'
 import Nav from '@/components/Nav'
-import Hero from '@/components/Hero'
 import About from '@/components/About'
 import BeforeAfter from '@/components/BeforeAfter'
 import Services from '@/components/Services'
@@ -8,13 +8,29 @@ import WhatYouGet from '@/components/WhatYouGet'
 import Reviews from '@/components/Reviews'
 import Booking from '@/components/Booking'
 import Footer from '@/components/Footer'
+import { createSupabaseServerClient } from '@/lib/supabase'
 
-export default function HomePage() {
+export const dynamic = 'force-dynamic'
+
+export default async function HomePage() {
+  let user = null
+  try {
+    const supabase = await createSupabaseServerClient()
+    const { data } = await supabase.auth.getUser()
+    user = data.user
+  } catch {
+    // Supabase env vars not set locally — proceed without auth
+  }
+
+  if (!user) {
+    return <GuestView />
+  }
+
   return (
     <>
-      <Nav />
+      <Nav user={user} />
       <main>
-        <Hero />
+        <div className="nav-spacer" />
         <About />
         <BeforeAfter />
         <Services />

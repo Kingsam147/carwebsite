@@ -13,25 +13,36 @@ export class SlotAlreadyBookedError extends Error {
 }
 
 type BookingInput = {
+  userId: string
   name: string
   phone: string
   vehicleType: string
   service: string
   addOns: string
   message: string
-  slotId: number
+  date: string
+  time: string
 }
 
 export async function createBooking(input: BookingInput) {
-  const slot = await prisma.timeSlot.findUnique({ where: { id: input.slotId } })
+  const existingSlot = await prisma.timeSlot.findFirst({
+    where: { date: input.date, time: input.time },
+  })
 
-  if (!slot) throw new SlotNotFoundError()
-  if (slot.isBooked) throw new SlotAlreadyBookedError()
+  if (existingSlot?.isBooked) throw new SlotAlreadyBookedError()
 
-  const booking = await prisma.booking.create({ data: input })
+  const slot = existingSlot ?? await prisma.timeSlot.create({
+    data: { date: input.date, time: input.time },
+  })
+
+  const { date: _date, time: _time, ...bookingFields } = input
+
+  const booking = await prisma.booking.create({
+    data: { ...bookingFields, slotId: slot.id },
+  })
 
   await prisma.timeSlot.update({
-    where: { id: input.slotId },
+    where: { id: slot.id },
     data: { isBooked: true },
   })
 

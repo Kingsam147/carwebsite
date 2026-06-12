@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ArrowRight, Phone, Mail, Link2, Loader2 } from 'lucide-react'
 
-type TimeSlot = { id: number; time: string }
+type TimeSlot = { time: string }
 
 const serviceOptions = [
   'Full Detail — Light ($110)',
@@ -42,19 +42,32 @@ const labelStyle: React.CSSProperties = {
 export default function Booking() {
   const [date, setDate] = useState('')
   const [slots, setSlots] = useState<TimeSlot[]>([])
+  const [slotsFetched, setSlotsFetched] = useState(false)
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    if (!date) { setSlots([]); return }
+  function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setDate(e.target.value)
+    setSlots([])
+    setSlotsFetched(false)
+  }
+
+  async function handleSlotFocus() {
+    if (!date || slotsFetched || loadingSlots) return
     setLoadingSlots(true)
-    fetch(`/api/slots?date=${date}`)
-      .then(r => r.json())
-      .then(data => { setSlots(Array.isArray(data) ? data : []); setLoadingSlots(false) })
-      .catch(() => setLoadingSlots(false))
-  }, [date])
+    try {
+      const response = await fetch(`/api/slots?date=${date}`)
+      const data = await response.json()
+      setSlots(Array.isArray(data) ? data : [])
+    } catch {
+      setSlots([])
+    } finally {
+      setSlotsFetched(true)
+      setLoadingSlots(false)
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -67,11 +80,10 @@ export default function Booking() {
       .join(', ')
 
     const payload = {
-      name: formData.get('name'),
-      phone: formData.get('phone'),
       vehicleType: formData.get('vehicleType'),
       service: formData.get('service'),
-      slotId: Number(formData.get('slotId')),
+      date,
+      time: formData.get('time'),
       addOns: selectedAddOns,
       message: formData.get('message') ?? '',
     }
@@ -86,7 +98,9 @@ export default function Booking() {
       setSubmitted(true)
     } else {
       const body = await response.json()
-      setError(body.error === 'Time slot is already booked' ? 'That time slot was just booked. Please pick another.' : 'Something went wrong. Please try again.')
+      setError(body.error === 'Time slot is already booked'
+        ? 'That time slot was just booked. Please pick another.'
+        : 'Something went wrong. Please try again.')
     }
     setSubmitting(false)
   }
@@ -120,14 +134,6 @@ export default function Booking() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
-              <label htmlFor="name" style={labelStyle}>FULL NAME *</label>
-              <input id="name" name="name" type="text" required placeholder="Your name" style={inputStyle} className="vx-input" />
-            </div>
-            <div>
-              <label htmlFor="phone" style={labelStyle}>PHONE *</label>
-              <input id="phone" name="phone" type="tel" required placeholder="774-000-0000" style={inputStyle} className="vx-input" />
-            </div>
-            <div>
               <label htmlFor="vehicleType" style={labelStyle}>VEHICLE TYPE *</label>
               <input id="vehicleType" name="vehicleType" type="text" required placeholder="e.g. 2021 Honda Accord" style={inputStyle} className="vx-input" />
             </div>
@@ -155,19 +161,35 @@ export default function Booking() {
                 id="date" name="date" type="date" required
                 min={new Date().toISOString().split('T')[0]}
                 value={date}
-                onChange={e => setDate(e.target.value)}
+                onChange={handleDateChange}
                 style={{ ...inputStyle, colorScheme: 'dark' }}
                 className="vx-input"
               />
             </div>
             <div>
-              <label htmlFor="slotId" style={labelStyle}>
+              <label htmlFor="time" style={labelStyle}>
                 AVAILABLE TIME SLOT *
                 {loadingSlots && <Loader2 size={12} style={{ marginLeft: 6, display: 'inline-block', verticalAlign: 'middle' }} />}
               </label>
-              <select id="slotId" name="slotId" required disabled={!date || loadingSlots} style={{ ...inputStyle, cursor: date ? 'pointer' : 'not-allowed', opacity: date ? 1 : 0.5 }} className="vx-input">
-                <option value="">{date ? (slots.length ? 'Select a time' : 'No slots available') : 'Pick a date first'}</option>
-                {slots.map(slot => <option key={slot.id} value={slot.id}>{slot.time}</option>)}
+              <select
+                id="time"
+                name="time"
+                required
+                disabled={!date || loadingSlots}
+                onFocus={handleSlotFocus}
+                style={{ ...inputStyle, cursor: date ? 'pointer' : 'not-allowed', opacity: date ? 1 : 0.5 }}
+                className="vx-input"
+              >
+                <option value="">
+                  {!date
+                    ? 'Pick a date first'
+                    : loadingSlots
+                    ? 'Loading...'
+                    : slotsFetched
+                    ? slots.length ? 'Select a time' : 'No slots available'
+                    : 'Click to load slots'}
+                </option>
+                {slots.map(slot => <option key={slot.time} value={slot.time}>{slot.time}</option>)}
               </select>
             </div>
             <div>
