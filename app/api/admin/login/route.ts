@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { createSupabaseServerClient } from '@/lib/supabase'
+import { adminLoginSchema } from '@/lib/validations'
+import { checkRateLimit } from '@/lib/rateLimiter'
 
 export async function POST(request: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(request, {
+    prefix: 'auth',
+    maxRequests: 5,
+    windowSeconds: 60,
+  })
+  if (rateLimitResponse) return rateLimitResponse
+
   let body: unknown
   try {
     body = await request.json()
@@ -9,19 +18,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { password } = body as Record<string, unknown>
-
-  if (!password || String(password) !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
+  const result = adminLoginSchema.safeParse(body)
+  if (!result.success) {
+    return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
   }
 
-  const cookieStore = await cookies()
-  cookieStore.set('vx_admin', '1', {
-    httpOnly: true,
-    sameSite: 'strict',
-    path: '/',
-    maxAge: 60 * 60 * 8,
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: result.data.email,
+    password: result.data.password,
   })
+
+  if (error || !data.user) {
+    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+  }
+
+  if (data.user.email !== process.env.ADMIN_EMAIL) {
+    await supabase.auth.signOut()
+    return NextResponse.json({ error: 'Not authorized' }, { status: 403 })
+  }
 
   return NextResponse.json({ success: true })
 }

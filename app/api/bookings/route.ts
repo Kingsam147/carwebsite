@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/db'
+import { checkRateLimit } from '@/lib/rateLimiter'
+import { bookingCreateSchema } from '@/lib/validations'
+import { createBooking, SlotNotFoundError, SlotAlreadyBookedError } from '@/services/bookingService'
 
 export async function POST(request: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(request, {
+    prefix: 'write',
+    maxRequests: 30,
+    windowSeconds: 60,
+  })
+  if (rateLimitResponse) return rateLimitResponse
+
   let body: unknown
   try {
     body = await request.json()
@@ -9,42 +18,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { name, phone, vehicleType, service, addOns, message, slotId } = body as Record<string, unknown>
-
-  if (!name || !phone || !vehicleType || !service || !slotId) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  const result = bookingCreateSchema.safeParse(body)
+  if (!result.success) {
+    return NextResponse.json(
+      { error: 'Invalid input', details: result.error.flatten().fieldErrors },
+      { status: 400 }
+    )
   }
 
-  if (typeof slotId !== 'number') {
-    return NextResponse.json({ error: 'slotId must be a number' }, { status: 400 })
+  try {
+    const booking = await createBooking(result.data)
+    return NextResponse.json(booking, {
+      status: 201,
+      headers: { 'Cache-Control': 'private, no-store' },
+    })
+  } catch (error) {
+    if (error instanceof SlotNotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 })
+    }
+    if (error instanceof SlotAlreadyBookedError) {
+      return NextResponse.json({ error: error.message }, { status: 409 })
+    }
+    throw error
   }
-
-  const slot = await prisma.timeSlot.findUnique({ where: { id: slotId } })
-
-  if (!slot) {
-    return NextResponse.json({ error: 'Time slot not found' }, { status: 404 })
-  }
-
-  if (slot.isBooked) {
-    return NextResponse.json({ error: 'Time slot is already booked' }, { status: 409 })
-  }
-
-  const booking = await prisma.booking.create({
-    data: {
-      name: String(name),
-      phone: String(phone),
-      vehicleType: String(vehicleType),
-      service: String(service),
-      addOns: addOns ? String(addOns) : '',
-      message: message ? String(message) : '',
-      slotId,
-    },
-  })
-
-  await prisma.timeSlot.update({
-    where: { id: slotId },
-    data: { isBooked: true },
-  })
-
-  return NextResponse.json(booking, { status: 201 })
 }

@@ -1,28 +1,6 @@
-import { cookies } from 'next/headers'
-import { login, logout, addSlot, deleteSlot } from './actions'
-import prisma from '@/lib/db'
-
-type SlotWithBooking = {
-  id: number
-  date: string
-  time: string
-  isBooked: boolean
-  booking: {
-    name: string
-    phone: string
-    vehicleType: string
-    service: string
-    addOns: string
-    message: string
-  } | null
-}
-
-async function getSlots(): Promise<SlotWithBooking[]> {
-  return prisma.timeSlot.findMany({
-    include: { booking: true },
-    orderBy: [{ date: 'asc' }, { time: 'asc' }],
-  }) as Promise<SlotWithBooking[]>
-}
+import { login, logout, addSlot, removeSlot } from './actions'
+import { isAdminAuthenticated } from '@/lib/auth'
+import { getAllSlots } from '@/services/slotService'
 
 const cardStyle: React.CSSProperties = {
   background: 'rgba(8,16,35,0.75)', border: '1px solid rgba(26,111,255,0.15)',
@@ -34,8 +12,7 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ error?: string }>
 }) {
-  const cookieStore = await cookies()
-  const isAuthenticated = cookieStore.get('vx_admin')?.value === '1'
+  const isAuthenticated = await isAdminAuthenticated()
   const params = await searchParams
 
   if (!isAuthenticated) {
@@ -47,11 +24,17 @@ export default async function AdminPage({
           </h1>
           <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', marginBottom: '20px', letterSpacing: '0.1em' }}>ADMIN PANEL</p>
           {params.error && (
-            <p style={{ color: '#f87171', fontSize: '0.75rem', marginBottom: '12px' }}>Incorrect password.</p>
+            <p style={{ color: '#f87171', fontSize: '0.75rem', marginBottom: '12px' }}>
+              {params.error === 'rate_limit' ? 'Too many attempts. Try again later.' : 'Invalid credentials.'}
+            </p>
           )}
           <form action={login} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <input
-              type="password" name="password" placeholder="Password" required
+              type="email" name="email" placeholder="Email" required autoComplete="email"
+              style={{ padding: '10px 12px', background: '#04060f', border: '1px solid rgba(26,111,255,0.2)', color: '#fff', borderRadius: '6px', fontSize: '0.8rem', fontFamily: 'var(--font-body)' }}
+            />
+            <input
+              type="password" name="password" placeholder="Password" required autoComplete="current-password"
               style={{ padding: '10px 12px', background: '#04060f', border: '1px solid rgba(26,111,255,0.2)', color: '#fff', borderRadius: '6px', fontSize: '0.8rem', fontFamily: 'var(--font-body)' }}
             />
             <button type="submit" style={{ padding: '10px', background: '#1a6fff', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', fontFamily: 'var(--font-body)' }}>
@@ -63,7 +46,7 @@ export default async function AdminPage({
     )
   }
 
-  const slots = await getSlots()
+  const slots = await getAllSlots()
 
   return (
     <div style={{ minHeight: '100vh', background: '#04060f', padding: '40px 24px', fontFamily: 'var(--font-body)' }}>
@@ -144,7 +127,7 @@ export default async function AdminPage({
                     }}>
                       {slot.isBooked ? 'BOOKED' : 'AVAILABLE'}
                     </span>
-                    <form action={deleteSlot.bind(null, slot.id)}>
+                    <form action={removeSlot.bind(null, slot.id)}>
                       <button type="submit" style={{ padding: '4px 10px', background: 'none', border: '1px solid rgba(248,113,113,0.3)', color: '#f87171', borderRadius: '4px', cursor: 'pointer', fontSize: '0.62rem', fontFamily: 'var(--font-body)' }}>
                         DELETE
                       </button>

@@ -1,21 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/db'
+import { checkRateLimit } from '@/lib/rateLimiter'
+import { getSlotsByDate, getAllSlots } from '@/services/slotService'
 
 export async function GET(request: NextRequest) {
-  const date = request.nextUrl.searchParams.get('date')
-
-  if (date) {
-    const slots = await prisma.timeSlot.findMany({
-      where: { date, isBooked: false },
-      select: { id: true, time: true },
-      orderBy: { time: 'asc' },
-    })
-    return NextResponse.json(slots)
-  }
-
-  const slots = await prisma.timeSlot.findMany({
-    orderBy: [{ date: 'asc' }, { time: 'asc' }],
+  const rateLimitResponse = await checkRateLimit(request, {
+    prefix: 'read',
+    maxRequests: 100,
+    windowSeconds: 60,
   })
+  if (rateLimitResponse) return rateLimitResponse
 
-  return NextResponse.json(slots)
+  const date = request.nextUrl.searchParams.get('date')
+  const slots = date ? await getSlotsByDate(date) : await getAllSlots()
+
+  return NextResponse.json(slots, {
+    headers: {
+      'Cache-Control': 'public, max-age=60, s-maxage=300',
+      'CDN-Cache-Control': 'max-age=300',
+    },
+  })
 }

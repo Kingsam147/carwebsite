@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/db'
 import { isAdminAuthenticated } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/rateLimiter'
+import { deleteSlot } from '@/services/slotService'
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const rateLimitResponse = await checkRateLimit(request, {
+    prefix: 'admin',
+    maxRequests: 20,
+    windowSeconds: 60,
+  })
+  if (rateLimitResponse) return rateLimitResponse
+
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -17,17 +25,13 @@ export async function DELETE(
     return NextResponse.json({ error: 'Invalid slot ID' }, { status: 400 })
   }
 
-  const slot = await prisma.timeSlot.findUnique({ where: { id: slotId } })
+  const deleted = await deleteSlot(slotId)
 
-  if (!slot) {
+  if (!deleted) {
     return NextResponse.json({ error: 'Slot not found' }, { status: 404 })
   }
 
-  if (slot.isBooked) {
-    await prisma.booking.delete({ where: { slotId } })
-  }
-
-  await prisma.timeSlot.delete({ where: { id: slotId } })
-
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true }, {
+    headers: { 'Cache-Control': 'private, no-store' },
+  })
 }

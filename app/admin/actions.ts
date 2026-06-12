@@ -1,22 +1,45 @@
 'use server'
 
-import { cookies } from 'next/headers'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import prisma from '@/lib/db'
+import { createSupabaseServerClient } from '@/lib/supabase'
+import { checkRateLimitByIp } from '@/lib/rateLimiter'
+import { createSlot, deleteSlot } from '@/services/slotService'
 
 export async function login(formData: FormData) {
+  const headerStore = await headers()
+  const ip =
+    headerStore.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+
+  const allowed = await checkRateLimitByIp(ip, {
+    prefix: 'auth',
+    maxRequests: 5,
+    windowSeconds: 60,
+  })
+  if (!allowed) redirect('/admin?error=rate_limit')
+
+  const email = formData.get('email') as string
   const password = formData.get('password') as string
-  if (password === process.env.ADMIN_PASSWORD) {
-    const cookieStore = await cookies()
-    cookieStore.set('vx_admin', '1', { httpOnly: true, path: '/', sameSite: 'strict', maxAge: 60 * 60 * 8 })
-    redirect('/admin')
+
+  if (!email || !password) redirect('/admin?error=1')
+
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error || !data.user || data.user.email !== process.env.ADMIN_EMAIL) {
+    if (data?.user) await supabase.auth.signOut()
+    redirect('/admin?error=1')
   }
-  redirect('/admin?error=1')
+
+  redirect('/admin')
 }
 
 export async function logout() {
-  const cookieStore = await cookies()
-  cookieStore.delete('vx_admin')
+  const supabase = await createSupabaseServerClient()
+  await supabase.auth.signOut()
   redirect('/admin')
 }
 
@@ -31,16 +54,11 @@ export async function addSlot(formData: FormData) {
   const period = hours >= 12 ? 'PM' : 'AM'
   const time = `${hour}:${String(minutes).padStart(2, '0')} ${period}`
 
-  await prisma.timeSlot.create({ data: { date, time } })
+  await createSlot(date, time)
   redirect('/admin')
 }
 
-export async function deleteSlot(slotId: number) {
-  const slot = await prisma.timeSlot.findUnique({ where: { id: slotId } })
-  if (!slot) return
-  if (slot.isBooked) {
-    await prisma.booking.delete({ where: { slotId } })
-  }
-  await prisma.timeSlot.delete({ where: { id: slotId } })
+export async function removeSlot(slotId: number) {
+  await deleteSlot(slotId)
   redirect('/admin')
 }
