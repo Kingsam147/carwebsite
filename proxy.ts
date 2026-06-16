@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN ?? ''
+const PORTFOLIO_ORIGIN = process.env.PORTFOLIO_ORIGIN ?? ''
 const COOKIE_NAME = 'vx_access'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 
@@ -19,6 +20,20 @@ export async function proxy(request: NextRequest) {
   // Always allow localhost in development
   if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) {
     return NextResponse.next()
+  }
+
+  // Allow visitors arriving from the portfolio — treat it as a trusted domain
+  const referer = request.headers.get('referer') ?? ''
+  if (PORTFOLIO_ORIGIN && referer.startsWith(PORTFOLIO_ORIGIN)) {
+    const sessionResponse = await enforceSession(request, pathname)
+    sessionResponse.cookies.set(COOKIE_NAME, '1', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: COOKIE_MAX_AGE,
+      path: '/',
+    })
+    return sessionResponse
   }
 
   // If no token configured, allow all traffic (feature is opt-in)
