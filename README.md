@@ -1,5 +1,7 @@
 # VelocityX
 
+**Live:** https://carwebsite-coral.vercel.app
+
 A full-stack car detailing and service booking platform. Customers browse services, view the vehicle fleet, compare before/after results, and book appointments through a real-time slot availability system. Admins manage bookings and time slots through a protected dashboard.
 
 ## Features
