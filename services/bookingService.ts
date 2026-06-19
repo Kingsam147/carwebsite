@@ -25,26 +25,28 @@ type BookingInput = {
 }
 
 export async function createBooking(input: BookingInput) {
-  const existingSlot = await prisma.timeSlot.findFirst({
-    where: { date: input.date, time: input.time },
-  })
-
-  if (existingSlot?.isBooked) throw new SlotAlreadyBookedError()
-
-  const slot = existingSlot ?? await prisma.timeSlot.create({
-    data: { date: input.date, time: input.time },
-  })
-
   const { date: _date, time: _time, ...bookingFields } = input
 
-  const booking = await prisma.booking.create({
-    data: { ...bookingFields, slotId: slot.id },
-  })
+  return prisma.$transaction(async (transaction) => {
+    const existingSlot = await transaction.timeSlot.findFirst({
+      where: { date: input.date, time: input.time },
+    })
 
-  await prisma.timeSlot.update({
-    where: { id: slot.id },
-    data: { isBooked: true },
-  })
+    if (existingSlot?.isBooked) throw new SlotAlreadyBookedError()
 
-  return booking
+    const slot = existingSlot ?? await transaction.timeSlot.create({
+      data: { date: input.date, time: input.time },
+    })
+
+    const booking = await transaction.booking.create({
+      data: { ...bookingFields, slotId: slot.id },
+    })
+
+    await transaction.timeSlot.update({
+      where: { id: slot.id },
+      data: { isBooked: true },
+    })
+
+    return booking
+  })
 }
